@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SKABEN smart tester</title>
+    <!-- <meta http-equiv="refresh" content="{{ refresh_cooldown }}"> -->
+</head>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='/css/bulma.min.css') }}">
+
+<style>
+    body {
+        min-height: 100vh;
+    }
+    .container {
+        padding: 1rem;
+    }
+    .heading {
+        font-weight: 400;
+        font-size: 1rem;
+    }
+    .is-overflow {
+        overflow-y: auto;
+        max-height: 500px;
+    }
+    hr {
+        height: 1px;
+    }
+    button {
+        margin-right: 1rem;
+    }
+    table {
+        margin-top: 1rem;
+        background-color: rgba(0,0,0,0);
+    }
+    .label {
+        color: #fff;
+    }
+</style>
+
+<body class="has-background-black-bis has-text-primary">
+<div class="container is-fullhd has-text-grey">
+
+    <div class="level has-text-centered">
+        {% for i in system_stats %}
+            <div>
+                <span class="heading">{{i[0].upper()}}</span>
+                <span class="title has-text-success">{{i[1]}}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="level has-text-centered">
+        {% for i in mqtt_stats %}
+            <div>
+                <span class="heading">{{i[0].upper()}}</span>
+                <span class="title has-text-success">{{i[1]}}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr class="has-background-grey">
+
+    <form action="" method="post">
+      <div class="columns">
+          <!--
+        <div class="column">
+            <div class="field">
+              <label class="label">command</label>
+              <div class="control">
+                <input name="command" class="input" type="text" placeholder="command">
+              </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="field">
+              <label class="label">timestamp (optional)</label>
+              <div class="control">
+                <input name="timestamp" class="input" type="text" placeholder="timestamp">
+              </div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="field">
+              <label class="label">task id</label>
+              <div class="control">
+                <input name="task_id" class="input" type="text" placeholder="task id">
+              </div>
+            </div>
+        </div>
+        -->
+      </div>
+      <div>
+        <div class="field">
+            <label class="label">payload</label>
+            <div class="control">
+                <textarea name="payload" class="textarea" placeholder="payload"></textarea>
+            </div>
+          </div>
+        <div><input class="button is-warning" type="submit" value="Submit"></div>
+      </div>
+    </form>
+
+    <hr class="has-background-grey">
+
+    <table class="table is-hoverable is-bordered is-fullwidth has-text-black-ter is-size-5">
+        <thead>
+        <h2 class="is-family-monospace is-size-5">{{header_2}}
+            <a class="has-family-monospace is-size-6" href="/json" target="_blank"> [ get json ] </a>
+        </h2>
+        </thead>
+        {% for i in device_stats %}
+            <tr>
+                <td>{{i[0].upper()}}</td>
+                <td>{{i[1]}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <hr class="has-background-grey">
+
+    <div class="is-size-7 has-family-monospace columns">
+        <div id="log_div" class="column is-overflow">
+            {% for r in stdout[:-1] %}
+                {% if r['type'] == 'stdout' %}
+                    <p class="has-text-success">{{ r['text'] }}</p>
+                {% else %}
+                    <p class="has-text-error">{{ r['text'] }}</p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+</body>
+
+<script>
+    var gIndex = 1;
+    var log_div = document.getElementById('log_div');
+    log_div.scrollTop = log_div.scrollHeight;
+
+    function refreshDiv(){
+      log_div.innerHTML = "Timer " + gIndex++;
+      var refresher = setTimeout("refreshDiv()", 1000);
+    }
+</script>
+
+</html>
