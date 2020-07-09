@@ -6,3 +6,4 @@ flask
 pyaml==18.11.0
 python-dotenv
 skabenclient
+pytest

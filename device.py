@@ -13,41 +13,39 @@ from skabenclient.loaders import SoundLoader
 from skabenclient.device import BaseDevice
 from skabenclient.config import loggers
 from skabenclient.contexts import EventContext
+from skabenproto.packets import PING, PONG
 from config import TesterConfig
 from web import app, start_flask_app
-
-
-# TODO:  rename dev_type to topic
-# TODO:  rename uid to subtopic
-# TODO:  rename listen to sub
-# TODO:  rename publish to pub
 
 
 class TesterDevice(BaseDevice):
 
     """ Test device should be able to generate all kind of messages"""
 
-    def __init__(self, system_config, device_config_path):
+    def __init__(self, system_config, device_config, web=True):
         self.sysconf_obj = system_config
         self.sysconf = system_config.data
-        super().__init__(system_config, device_config_path)
+        super().__init__(system_config, device_config)
         self.running = None
+        self.web = web
         self.flask = None
-        self.flask_data = {
-                            'device': self,
-                            'stdout': [],
-                            'stderr': []
-                           }
-        self.flask_queue = Queue()
-        #self.redirect_std()
-        self.start_webinterface()
+        delay = self.sysconf.get('delay')
+        if delay:
+            self.set_delay(delay)
 
-    def start_webinterface(self):
-        flask_thread = th.Thread(target=start_flask_app,
-                                 daemon=True,
-                                 args=(app, self.flask_data, self.flask_queue))
-        flask_thread.start()
-        self.flask = flask_thread
+        if self.web:
+            self.flask_data = {
+                                'device': self,
+                                'stdout': [],
+                                'stderr': []
+                               }
+            self.flask_queue = Queue()
+            #self.redirect_std()
+            flask_thread = th.Thread(target=start_flask_app,
+                                     daemon=True,
+                                     args=(app, self.flask_data, self.flask_queue))
+            flask_thread.start()
+            self.flask = flask_thread
 
     def redirect_std(self):
         """ redirect standart output """
@@ -64,6 +62,25 @@ class TesterDevice(BaseDevice):
         sys.stdout = StdStream(self.flask_data['stdout'], 'stdout')
         sys.stderr = StdStream(self.flask_data['stderr'], 'stderr')
 
+    def emulate_activity(self):
+        packet = PING(topic=self.sysconf.get('pub'),
+                      uid=self.uid,
+                      timestamp='12345')
+        self.sysconf.get('q_ext').put(packet.encode())
+
+    def set_delay(self, delay):
+        """ monkeypatching EventContext """
+
+        def rigged_with_delay():
+            def inner(*args):
+                obj = args[0]
+                timestamp = args[1] - int(delay)
+                with open(obj.timestamp_fname, 'w') as fh:
+                    fh.write(str(timestamp))
+                    return timestamp
+            return inner
+
+        EventContext.rewrite_timestamp = rigged_with_delay()
 
     def run(self):
         print('application is starting...')
@@ -72,12 +89,19 @@ class TesterDevice(BaseDevice):
         initial_config = self.config.data
         event = make_event('device', 'reload')
         self.q_int.put(event)
+        #q_ext = self.sysconf.get('q_ext')
         while self.running:
-            _data = self.flask_queue.get()
-            if _data:
-                d = json.loads(_data.get('payload').rstrip())
-                event = make_event('device', 'send', d)
-                self.q_int.put(event)
+        #    event = q_ext.get()
+        #    if event:
+        #        print(event)
+        #        q_ext.put(event)
+            #self.emulate_activity()
+            if self.web:
+                _data = self.flask_queue.get()
+                if _data:
+                    d = json.loads(_data.get('payload').rstrip())
+                    event = make_event('device', 'send', d)
+                    self.q_int.put(event)
             new_config = self.config.data
             if new_config != initial_config:
                 changed = [(k, new_config.get(k), initial_config.get(k))
