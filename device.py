@@ -99,8 +99,8 @@ class TesterDevice(BaseDevice):
             if self.web:
                 _data = self.flask_queue.get()
                 if _data:
-                    d = json.loads(_data.get('payload').rstrip())
-                    event = make_event('device', 'send', d)
+                    d = json.loads(_data.get('datahold'))
+                    event = make_event('device', 'sup', d)
                     self.q_int.put(event)
             new_config = self.config.data
             if new_config != initial_config:

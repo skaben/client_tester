@@ -94,7 +94,7 @@
         <div class="field">
             <label class="label">payload</label>
             <div class="control">
-                <textarea name="payload" class="textarea" placeholder="payload"></textarea>
+                <textarea name="datahold" class="textarea" placeholder="payload"></textarea>
             </div>
           </div>
         <div><input class="button is-warning" type="submit" value="Submit"></div>
@@ -139,7 +139,7 @@
     var log_div = document.getElementById('log_div');
     log_div.scrollTop = log_div.scrollHeight;
 
-    function refreshDiv(){
+    function refreshDiv() {
       log_div.innerHTML = "Timer " + gIndex++;
       var refresher = setTimeout("refreshDiv()", 1000);
     }

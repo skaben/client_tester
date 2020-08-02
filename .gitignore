@@ -1,4 +1,5 @@
 # misc
+.idea/
 .env
 timestamp
 *.log
