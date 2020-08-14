@@ -92,6 +92,17 @@
       </div>
       <div>
         <div class="field">
+          <label class="label">packet type</label>
+          <div class="control">
+            <div class="select">
+              <select name="packet_type">
+                <option value="SUP" selected>SUP (update local config and send)</option>
+                <option value="INFO">INFO (send simple message)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field">
             <label class="label">payload</label>
             <div class="control">
                 <textarea name="datahold" class="textarea" placeholder="payload"></textarea>

@@ -31,6 +31,7 @@ def get_stat():
 
     if request.method == 'POST':
         data = request.form.to_dict()
+        print(data)
         app.config['queue'].put(data)
 
     return render_template('base.html', **context)

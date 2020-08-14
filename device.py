@@ -11,7 +11,6 @@ from queue import Queue
 from skabenclient.helpers import make_event
 from skabenclient.loaders import SoundLoader
 from skabenclient.device import BaseDevice
-from skabenclient.config import loggers
 from skabenclient.contexts import EventContext
 from skabenproto.packets import PING, PONG
 from config import TesterConfig
@@ -97,11 +96,17 @@ class TesterDevice(BaseDevice):
         #        q_ext.put(event)
             #self.emulate_activity()
             if self.web:
-                _data = self.flask_queue.get()
-                if _data:
-                    d = json.loads(_data.get('datahold'))
-                    event = make_event('device', 'sup', d)
-                    self.q_int.put(event)
+                form_data = self.flask_queue.get()
+                try:
+                    res = json.loads(form_data.get("datahold"))
+                except json.decoder.JSONDecodeError as e:
+                    res = form_data.get("datahold")
+
+                if form_data.get("packet_type") == "SUP":
+                    self.state_update(res)
+                else:
+                    self.send_message(res)
+
             new_config = self.config.data
             if new_config != initial_config:
                 changed = [(k, new_config.get(k), initial_config.get(k))
