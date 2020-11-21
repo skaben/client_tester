@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import socket
 
 from skabenclient.config import SystemConfig
 from skabenclient.helpers import get_mac
@@ -19,6 +20,10 @@ dev_config_path = os.path.join(root, 'conf', 'device.yml')
 log_path = os.path.join(root, 'local.log')
 
 
+def get_interface_name():
+    return socket.if_nameindex()
+
+
 if __name__ == "__main__":
     # get arguments
     arguments = dict(enumerate(sys.argv[1:]))  # exclude script name
@@ -32,6 +37,7 @@ if __name__ == "__main__":
 
     # assign default values
     load_dotenv(dotenv_path='.env')
+    print(get_interface_name())
 
     test_conf = {
                 'topic': arguments.get(0, 'ask'),

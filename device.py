@@ -85,9 +85,9 @@ class TesterDevice(BaseDevice):
         print('application is starting...')
         self.logger.info(f'tester starting as: {self.sysconf}')
         self.running = True
-        initial_config = self.config.data
         event = make_event('device', 'reload')
         self.q_int.put(event)
+        initial_config = self.config.data
         #q_ext = self.sysconf.get('q_ext')
         while self.running:
         #    event = q_ext.get()
@@ -109,9 +109,6 @@ class TesterDevice(BaseDevice):
 
             new_config = self.config.data
             if new_config != initial_config:
-                changed = [(k, new_config.get(k), initial_config.get(k))
-                           for _ in initial_config
-                           if new_config.get(k, 'none') != initial_config.get(k, 'no_ne')]
-                report = [f"key {r[0]} updated from {r[1]} to {r[2]}" for r in changed]
-                print('\n'.join(report))
+                print(f"{new_config}")
+                initial_config = new_config
             time.sleep(1)

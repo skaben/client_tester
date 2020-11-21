@@ -3,6 +3,7 @@
 
 pygame>=1.9.4
 flask
+requests
 pyaml==18.11.0
 python-dotenv
 skabenclient
