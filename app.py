@@ -1,7 +1,7 @@
 import sys
 
 arguments = dict(enumerate(sys.argv[1:]))  # exclude script name
-if len(arguments) != 1 or arguments.get(0) in ('help', '-h', '--help'):
+if arguments.get(0) in ('help', '-h', '--help'):
     print('\n  look up for tester environment in .env file\n')
     exit()
 else:

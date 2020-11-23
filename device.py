@@ -39,7 +39,7 @@ class TesterDevice(BaseDevice):
                                 'stderr': []
                                }
             self.flask_queue = Queue()
-            #self.redirect_std()
+            self.redirect_std()
             flask_thread = th.Thread(target=start_flask_app,
                                      daemon=True,
                                      args=(app, self.flask_data, self.flask_queue))
