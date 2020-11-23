@@ -39,27 +39,11 @@ class TesterDevice(BaseDevice):
                                 'stderr': []
                                }
             self.flask_queue = Queue()
-            self.redirect_std()
             flask_thread = th.Thread(target=start_flask_app,
                                      daemon=True,
                                      args=(app, self.flask_data, self.flask_queue))
             flask_thread.start()
             self.flask = flask_thread
-
-    def redirect_std(self):
-        """ redirect standart output """
-        class StdStream(io.IOBase):
-
-            def __init__(self, stream, stype):
-                self.stream = stream
-                self.stype = stype
-
-            def write(self, s):
-                r = {'type': self.stype, 'text': s}
-                self.stream.append(r)
-
-        sys.stdout = StdStream(self.flask_data['stdout'], 'stdout')
-        sys.stderr = StdStream(self.flask_data['stderr'], 'stderr')
 
     def emulate_activity(self):
         packet = PING(topic=self.sysconf.get('pub'),
