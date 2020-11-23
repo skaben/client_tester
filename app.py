@@ -25,7 +25,7 @@ log_path = os.path.join(root, 'local.log')
 
 
 if __name__ == "__main__":
-    load_dotenv(dotenv_path='.env')
+    load_dotenv(dotenv_path=os.path.join(root, '.env'))
 
     TESTER_CONF = {
                 'topic': os.getenv('TOPIC', 'ask'),
