@@ -86,7 +86,7 @@ class TesterDevice(BaseDevice):
                 except json.decoder.JSONDecodeError as e:
                     res = form_data.get("datahold")
 
-                if form_data.get("packet_type") == "SUP":
+                if form_data.get("type") == "SUP":
                     self.state_update(res)
                 else:
                     self.send_message(res)

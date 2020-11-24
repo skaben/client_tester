@@ -1,4 +1,7 @@
 import os
+import re
+import json
+
 from flask import Flask, render_template, flash, request, send_from_directory, jsonify
 
 
@@ -36,7 +39,6 @@ def get_stat():
 
     if request.method == 'POST':
         data = request.form.to_dict()
-        print(data)
         app.config['queue'].put(data)
 
     return render_template('base.html', **context)
@@ -50,6 +52,24 @@ def get_client_data():
 @app.route('/api/config')
 def get_client_config():
     return jsonify(app.config['device'].config.data);
+
+
+@app.route('/api/message', methods=['GET', 'POST'])
+def get_message_info():
+    message_types = {
+      'SUP': '(update local config and send)',
+      'INFO': '(send message without save)'
+    }
+
+    if request.method == 'GET':
+        return jsonify(message_types)
+    else:
+        try:
+            form_data = json.loads(request.json.get('body', {}))
+            app.config['queue'].put(form_data)
+            return jsonify({'success': 'success'})
+        except Exception as e:
+            return jsonify({'error': f'{e}'})
 
 
 @app.route('/json')
